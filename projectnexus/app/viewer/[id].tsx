@@ -1,0 +1,54 @@
+import { useLocalSearchParams } from 'expo-router';
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+
+import ModelViewer from '@/components/ModelViewer';
+import { Colors, Spacing } from '@/constants/theme';
+import { mockProducts } from '@/data/mockProducts';
+
+export default function ViewerScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const product = mockProducts.find((item) => item.id === id);
+
+  if (!product) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Model bulunamadı</Text>
+          <Text style={styles.subtitle}>Geçerli bir ürün seçip tekrar dene.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.title}>{product.name}</Text>
+        <Text style={styles.subtitle}>Parmakla döndür ve pinch ile yakınlaştır.</Text>
+        <ModelViewer modelSource={product.modelSource} />
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  container: {
+    flex: 1,
+    padding: Spacing.md,
+    gap: Spacing.md,
+    backgroundColor: Colors.background,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  subtitle: {
+    color: Colors.textSecondary,
+    fontSize: 14,
+  },
+});
