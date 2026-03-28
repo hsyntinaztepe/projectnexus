@@ -6,9 +6,9 @@ from routers import users, products
 # Tabloları oluştur
 try:
     Base.metadata.create_all(bind=engine)
-    print("✅ Veritabanı tabloları oluşturuldu!")
+    print("Veritabanı tabloları oluşturuldu!")
 except Exception as e:
-    print(f"❌ Veritabanı bağlantı hatası: {e}")
+    print(f"Veritabanı bağlantı hatası: {e}")
 
 app = FastAPI(
     title="Project Nexus API",

@@ -93,7 +93,16 @@ export default function ProductDetail() {
 
         <View style={styles.info}>
           <View style={styles.topRow}>
-            <Text style={styles.category}>{product.category || 'Genel'}</Text>
+            <View style={styles.badgeRow}>
+              <Text style={styles.category}>{product.category || 'Genel'}</Text>
+              {product.platform && (
+                <View style={styles.platformBadge}>
+                  <Text style={styles.platformText}>
+                    {product.platform === 'Amazon' ? '🛒' : '📦'} {product.platform}
+                  </Text>
+                </View>
+              )}
+            </View>
             <TouchableOpacity onPress={handleToggleFavorite}>
               <Text style={styles.heartIcon}>{favorited ? '❤️' : '🤍'}</Text>
             </TouchableOpacity>
@@ -197,6 +206,22 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  platformBadge: {
+    backgroundColor: '#333',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  platformText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: '700',
   },
   heartIcon: {
     fontSize: 24,

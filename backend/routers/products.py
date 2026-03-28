@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
+import urllib.request
+import json
 
 from database import get_db
 from models.schemas import Product, Favorite, SearchHistory, User
@@ -88,6 +90,73 @@ async def create_product(
     db.commit()
     db.refresh(product)
     return ProductResponse.model_validate(product)
+
+
+@router.post("/sync-dummy", status_code=status.HTTP_201_CREATED)
+async def sync_dummy_products(db: Session = Depends(get_db)):
+    """DummyJSON'dan mobilya verilerini çek ve DB'ye kaydet"""
+    url = "https://dummyjson.com/products/category/furniture"
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    
+    try:
+        with urllib.request.urlopen(req) as response:
+            if response.status != 200:
+                raise HTTPException(status_code=400, detail="DummyJSON verisi çekilemedi")
+            data = json.loads(response.read().decode())
+            products_data = data.get('products', [])
+            
+            added_count = 0
+            for item in products_data:
+                source_url = f"https://dummyjson.com/products/{item['id']}"
+                
+                # Zaten eklendiyse atla
+                existing = db.query(Product).filter(Product.source_url == source_url).first()
+                if existing:
+                    continue
+                    
+                new_product = Product(
+                    name=item.get("title", "Unknown"),
+                    source_url=source_url,
+                    price=float(item.get("price", 0.0)),
+                    image_url=item.get("thumbnail", ""),
+                    # Her ürünün standart bir koltuk glb si olsun ki viewer hata vermesin
+                    model_url="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/SheenChair/glTF-Binary/SheenChair.glb",
+                    category="Furniture",
+                    description=item.get("description", ""),
+                    platform="DummyJSON",
+                    is_active=True
+                )
+                db.add(new_product)
+                added_count += 1
+                
+            db.commit()
+            return {"message": f"{added_count} adet yeni mobilya başarıyla eklendi."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Senkronizasyon hatası: {str(e)}")
+
+
+@router.post("/external-sync", status_code=status.HTTP_201_CREATED)
+async def sync_external_product(product_data: ProductCreate, db: Session = Depends(get_db)):
+    """Amazon veya Trendyol'dan çekilen mobilya verisini DB'ye kaydet"""
+    # Zaten eklendiyse atla
+    existing = db.query(Product).filter(Product.source_url == product_data.source_url).first()
+    if existing:
+        return {"message": "Bu ürün zaten veritabanında mevcut.", "status": "exists"}
+        
+    new_product = Product(
+        name=product_data.name,
+        source_url=product_data.source_url,
+        price=product_data.price,
+        image_url=product_data.image_url,
+        model_url=product_data.model_url,
+        category=product_data.category or "Furniture",
+        description=product_data.description or "Amazon.com.tr üzerinden çekilen ürün.",
+        platform=product_data.platform or "Amazon",
+        is_active=True
+    )
+    db.add(new_product)
+    db.commit()
+    return {"message": f"'{new_product.name}' isimli ürün başarıyla eklendi.", "status": "added"}
 
 
 # ─── Favoriler ────────────────────────────────────────────────────────────

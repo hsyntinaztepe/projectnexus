@@ -13,11 +13,20 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={() => onPress?.(product.id)}>
-      <Image
-        source={{ uri: product.image_url || 'https://via.placeholder.com/300' }}
-        style={styles.image}
-        resizeMode="cover"
-      />
+      <View style={styles.imageContainer}>
+        <Image
+          source={{ uri: product.image_url || 'https://via.placeholder.com/300' }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+        {product.platform && (
+          <View style={styles.platformBadge}>
+            <Text style={styles.platformText}>
+               {product.platform === 'Amazon' ? '🛒' : '📦'} {product.platform}
+            </Text>
+          </View>
+        )}
+      </View>
       <View style={styles.content}>
         <Text style={styles.name} numberOfLines={2}>
           {product.name}
@@ -48,10 +57,29 @@ const styles = StyleSheet.create({
     opacity: 0.85,
     transform: [{ scale: 0.97 }],
   },
-  image: {
+  imageContainer: {
     width: '100%',
     height: 120,
     backgroundColor: '#E5E7EB',
+    position: 'relative',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  platformBadge: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  platformText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   content: {
     padding: Spacing.sm,

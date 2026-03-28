@@ -20,8 +20,8 @@ export default function ViewerScreen() {
     );
   }
 
-  // model_url yoksa gömülü local ördek modelini prototip olarak kullan
-  const modelSource = product.model_url || require('../../assets/models/duck.glb');
+  // glb require engellendi
+  const modelSource = product.model_url || null;
 
   return (
     <SafeAreaView style={styles.safeArea}>

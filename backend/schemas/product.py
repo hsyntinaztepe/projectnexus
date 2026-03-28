@@ -19,6 +19,7 @@ class ProductResponse(BaseModel):
     colors: list[str] = []
     category: str | None = None
     description: str | None = None
+    platform: str | None = "Unknown"
     created_at: datetime
     
     model_config = ConfigDict(protected_namespaces=(), from_attributes=True)
@@ -34,6 +35,7 @@ class ProductCreate(BaseModel):
     colors: list[str] = []
     category: str | None = None
     description: str | None = None
+    platform: str | None = "Unknown"
 
     model_config = ConfigDict(protected_namespaces=())
 
@@ -47,6 +49,7 @@ class ProductUpdate(BaseModel):
     colors: list[str] | None = None
     category: str | None = None
     description: str | None = None
+    platform: str | None = None
 
     model_config = ConfigDict(protected_namespaces=())
 

@@ -99,6 +99,7 @@ export interface Product {
   colors: string[];
   category: string | null;
   description: string | null;
+  platform: string | null;
   created_at: string;
 }
 
