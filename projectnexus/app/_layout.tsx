@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { useAuthStore } from '@/store/authStore';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -14,7 +15,6 @@ export {
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
 
@@ -25,6 +25,7 @@ export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+  const { loadStoredAuth } = useAuthStore();
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -33,7 +34,9 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      loadStoredAuth().finally(() => {
+        SplashScreen.hideAsync();
+      });
     }
   }, [loaded]);
 
@@ -45,13 +48,36 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="login"
+            options={{
+              title: 'Giriş Yap',
+              headerShown: false,
+              presentation: 'modal',
+            }}
+          />
+          <Stack.Screen
+            name="register"
+            options={{
+              title: 'Kayıt Ol',
+              headerBackTitle: 'Geri',
+            }}
+          />
+          <Stack.Screen
+            name="product/[id]"
+            options={{ title: 'Ürün Detayı', headerBackTitle: 'Geri' }}
+          />
+          <Stack.Screen
+            name="viewer/[id]"
+            options={{ title: '3D Görüntüleyici', headerBackTitle: 'Geri' }}
+          />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>
       </ThemeProvider>

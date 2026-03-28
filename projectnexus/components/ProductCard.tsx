@@ -1,29 +1,35 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Spacing } from '@/constants/theme';
-
-export interface ProductCardItem {
-  id: string;
-  name: string;
-  price: number;
-  imageUrl: string;
-  modelSource: number;
-}
+import type { Product } from '@/services/api';
 
 interface ProductCardProps {
-  product: ProductCardItem;
+  product: Product;
   onPress?: (id: string) => void;
 }
 
 export default function ProductCard({ product, onPress }: ProductCardProps) {
   return (
-    <Pressable style={styles.card} onPress={() => onPress?.(product.id)}>
-      <Image source={{ uri: product.imageUrl }} style={styles.image} resizeMode="cover" />
+    <Pressable
+      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      onPress={() => onPress?.(product.id)}>
+      <Image
+        source={{ uri: product.image_url || 'https://via.placeholder.com/300' }}
+        style={styles.image}
+        resizeMode="cover"
+      />
       <View style={styles.content}>
         <Text style={styles.name} numberOfLines={2}>
           {product.name}
         </Text>
-        <Text style={styles.price}>{product.price.toLocaleString('tr-TR')} TL</Text>
+        {product.dimensions && (
+          <Text style={styles.dimensions}>
+            {product.dimensions.width}×{product.dimensions.height}×{product.dimensions.depth} cm
+          </Text>
+        )}
+        {product.price != null && (
+          <Text style={styles.price}>{product.price.toLocaleString('tr-TR')} TL</Text>
+        )}
       </View>
     </Pressable>
   );
@@ -38,6 +44,10 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     overflow: 'hidden',
   },
+  cardPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.97 }],
+  },
   image: {
     width: '100%',
     height: 120,
@@ -45,7 +55,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.sm,
-    gap: Spacing.xs,
+    gap: 2,
   },
   name: {
     color: Colors.text,
@@ -53,9 +63,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     minHeight: 36,
   },
+  dimensions: {
+    color: Colors.textSecondary,
+    fontSize: 11,
+  },
   price: {
     color: Colors.primary,
     fontSize: 14,
     fontWeight: '700',
+    marginTop: 2,
   },
 });

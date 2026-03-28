@@ -3,11 +3,11 @@ import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 import ModelViewer from '@/components/ModelViewer';
 import { Colors, Spacing } from '@/constants/theme';
-import { mockProducts } from '@/data/mockProducts';
+import { useProductStore } from '@/store/productStore';
 
 export default function ViewerScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const product = mockProducts.find((item) => item.id === id);
+  const product = useProductStore((state) => state.getProductById(id));
 
   if (!product) {
     return (
@@ -20,12 +20,15 @@ export default function ViewerScreen() {
     );
   }
 
+  // model_url yoksa gömülü local ördek modelini prototip olarak kullan
+  const modelSource = product.model_url || require('../../assets/models/duck.glb');
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Text style={styles.title}>{product.name}</Text>
-        <Text style={styles.subtitle}>Parmakla döndür ve pinch ile yakınlaştır.</Text>
-        <ModelViewer modelSource={product.modelSource} />
+        <Text style={styles.subtitle}>Parmakla döndür ve yakınlaştır.</Text>
+        <ModelViewer modelSource={modelSource} />
       </View>
     </SafeAreaView>
   );

@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { Colors } from '@/constants/theme';
 
 interface ModelViewerProps {
-  modelSource: number;
+  modelSource: number | string;
 }
 
 function Model({ uri }: { uri: string }) {
@@ -52,9 +52,15 @@ export default function ModelViewer({ modelSource }: ModelViewerProps) {
   useEffect(() => {
     let mounted = true;
 
-    function resolveModelAsset() {
+    async function resolveModelAsset() {
+      if (typeof modelSource === 'string') {
+        if (mounted) setModelUri(modelSource);
+        return;
+      }
+      
       try {
         const asset = Asset.fromModule(modelSource);
+        await asset.downloadAsync();
         if (mounted) {
           setModelUri(asset.localUri ?? asset.uri);
         }
