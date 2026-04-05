@@ -1,0 +1,18 @@
+﻿ M backend/main.py
+ M backend/seed.py
+ M backend/services/amazon_scraper.py
+ M projectnexus/app/viewer/[id].tsx
+ M projectnexus/components/ModelViewer.tsx
+ M projectnexus/data/mockProducts.ts
+ M projectnexus/metro.config.js
+ M projectnexus/package-lock.json
+ M projectnexus/package.json
+ M projectnexus/services/api.ts
+ M start_nexus.bat
+?? amazon_scraper.bat
+?? backend/media/
+?? backend/package-lock.json
+?? backend/package.json
+?? blm4538son_final.pdf
+?? git_status_output.txt
+?? projectnexus/assets/models/Koltuk.glb

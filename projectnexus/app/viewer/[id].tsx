@@ -5,6 +5,10 @@ import ModelViewer from '@/components/ModelViewer';
 import { Colors, Spacing } from '@/constants/theme';
 import { useProductStore } from '@/store/productStore';
 
+// Şimdilik tüm ürünler için local Koltuk.glb kullanılıyor.
+// İleride: Gemini API → prompt oluştur → Meshy API → 3D model üret → indir → göster
+const LOCAL_MODEL = require('@/assets/models/Koltuk.glb');
+
 export default function ViewerScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const product = useProductStore((state) => state.getProductById(id));
@@ -20,8 +24,9 @@ export default function ViewerScreen() {
     );
   }
 
-  // glb require engellendi
-  const modelSource = product.model_url || null;
+  // Local bundled asset kullanıyoruz (require → number döner)
+  // İleride AI pipeline hazır olunca, model_url'den indirilen dosya kullanılacak
+  const modelSource = LOCAL_MODEL;
 
   return (
     <SafeAreaView style={styles.safeArea}>

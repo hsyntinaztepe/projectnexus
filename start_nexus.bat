@@ -10,7 +10,7 @@ echo ==================================================
 echo.
 
 echo [1/2] Backend (FastAPI) Sunucusu ayaga kaldiriliyor...
-start "Nexus Backend (FastAPI)" cmd /k "cd backend && call venv\Scripts\activate.bat && python -m uvicorn main:app --reload"
+start "Nexus Backend (FastAPI)" cmd /k "cd backend && call venv\Scripts\activate.bat && python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
 timeout /t 3 /nobreak >nul
 

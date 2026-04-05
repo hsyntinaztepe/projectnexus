@@ -102,7 +102,7 @@ def fetch_amazon_furniture(retries=3):
                 "source_url": link,
                 "price": cleaned_price,
                 "image_url": img if img != "Gorsel Yok" else None,
-                "model_url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/SheenChair/glTF-Binary/SheenChair.glb",
+                "model_url": "http://192.168.0.3:8000/media/models/Koltuk.glb",
                 "category": f"Furniture - {keyword.capitalize()}", # Kategoriye aranilan kelimeyi de ekleyelim
                 "platform": "Amazon"
             }

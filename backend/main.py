@@ -1,7 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
+import os
+
 from database import engine, Base
 from routers import users, products
+
+# Klasörleri oluştur
+os.makedirs("media/models", exist_ok=True)
 
 # Tabloları oluştur
 try:
@@ -16,6 +23,9 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Statik dosyalar için media klasörünü dışarı aç
+app.mount("/media", StaticFiles(directory="media"), name="media")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Production'da kısıtlanmalı
@@ -27,6 +37,11 @@ app.add_middleware(
 # Router'ları ekle
 app.include_router(users.router)
 app.include_router(products.router)
+
+@app.get("/", include_in_schema=False)
+async def root():
+    # Ana dizine gelindiğinde doğrudan Swagger arayüzüne yönlendir
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/health")

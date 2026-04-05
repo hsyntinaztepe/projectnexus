@@ -14,10 +14,11 @@ SEED_PRODUCTS = [
         "price": 4299,
         "dimensions": {"width": 200, "height": 90, "depth": 80},
         "image_url": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1000",
-        "model_url": None,
+        "model_url": "http://192.168.0.3:8000/media/models/Koltuk.glb",
         "colors": ["#2C2C2C", "#8B7355", "#F5F5F5", "#1A3A5C"],
         "category": "Koltuk",
-        "source_url": "https://www.trendyol.com/",
+        "source_url": "https://www.unknown.com/",
+        "platform": "Unknown",
         "description": "Modern tasarımlı, konforlu üçlü koltuk takımı. Yumuşak kumaş döşeme."
     },
     {
@@ -26,10 +27,11 @@ SEED_PRODUCTS = [
         "price": 2150,
         "dimensions": {"width": 120, "height": 75, "depth": 60},
         "image_url": "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=1000",
-        "model_url": None,
+        "model_url": "http://192.168.0.3:8000/media/models/Koltuk.glb",
         "colors": ["#F5DEB3", "#8B4513", "#FFFFFF"],
         "category": "Masa",
-        "source_url": "https://www.hepsiburada.com/",
+        "source_url": "https://www.unknown.com/",
+        "platform": "Unknown",
         "description": "Ergonomik çalışma masası, geniş çalışma alanı."
     },
     {
@@ -38,10 +40,11 @@ SEED_PRODUCTS = [
         "price": 1890,
         "dimensions": {"width": 180, "height": 55, "depth": 40},
         "image_url": "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1000",
-        "model_url": None,
+        "model_url": "http://192.168.0.3:8000/media/models/Koltuk.glb",
         "colors": ["#FFFFFF", "#333333", "#D2B48C"],
         "category": "Ünite",
-        "source_url": "https://www.trendyol.com/",
+        "source_url": "https://www.unknown.com/",
+        "platform": "Unknown",
         "description": "Modern TV ünitesi, geniş depolama alanı."
     },
     {
@@ -50,10 +53,11 @@ SEED_PRODUCTS = [
         "price": 1350,
         "dimensions": {"width": 75, "height": 100, "depth": 70},
         "image_url": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000",
-        "model_url": None,
+        "model_url": "http://192.168.0.3:8000/media/models/Koltuk.glb",
         "colors": ["#556B2F", "#8B7355", "#F0E68C"],
         "category": "Koltuk",
         "source_url": "https://www.amazon.com.tr/",
+        "platform": "Amazon",
         "description": "Rahat ve şık berjer koltuk, okuma köşesi için ideal."
     },
     {
@@ -62,10 +66,11 @@ SEED_PRODUCTS = [
         "price": 5490,
         "dimensions": {"width": 160, "height": 76, "depth": 90},
         "image_url": "https://images.unsplash.com/photo-1617806118233-18e1de247200?w=1000",
-        "model_url": None,
+        "model_url": "http://192.168.0.3:8000/media/models/Koltuk.glb",
         "colors": ["#8B4513", "#D2691E", "#F5F5DC"],
         "category": "Masa",
-        "source_url": "https://www.trendyol.com/",
+        "source_url": "https://www.unknown.com/",
+        "platform": "Unknown",
         "description": "6 kişilik yemek masası seti, masif ahşap."
     },
     {
@@ -74,10 +79,11 @@ SEED_PRODUCTS = [
         "price": 1299,
         "dimensions": {"width": 80, "height": 180, "depth": 30},
         "image_url": "https://images.unsplash.com/photo-1594620302200-9a762244a156?w=1000",
-        "model_url": None,
+        "model_url": "http://192.168.0.3:8000/media/models/Koltuk.glb",
         "colors": ["#FFFFFF", "#2C2C2C", "#8B7355"],
         "category": "Ünite",
-        "source_url": "https://www.hepsiburada.com/",
+        "source_url": "https://www.unknown.com/",
+        "platform": "Unknown",
         "description": "5 raflı modern kitaplık, dekoratif tasarım."
     },
 ]
