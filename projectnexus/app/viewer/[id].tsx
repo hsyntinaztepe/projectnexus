@@ -24,9 +24,11 @@ export default function ViewerScreen() {
     );
   }
 
-  // Local bundled asset kullanıyoruz (require → number döner)
-  // İleride AI pipeline hazır olunca, model_url'den indirilen dosya kullanılacak
-  const modelSource = LOCAL_MODEL;
+  // Local bundled asset kullanıyoruz (require -> number döner)
+  // AI pipeline'dan gelen "model_url" (http://...) varsa onu direk useGLTF hook'una string (URL) olarak paslıyoruz.
+  const modelSource = product.model_url && product.model_url.startsWith('http') 
+    ? product.model_url 
+    : LOCAL_MODEL;
 
   return (
     <SafeAreaView style={styles.safeArea}>

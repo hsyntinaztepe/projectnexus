@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, BackgroundTasks
 from sqlalchemy.orm import Session
 import urllib.request
 import json
+import os
 
 from database import get_db
 from models.schemas import Product, Favorite, SearchHistory, User
@@ -13,6 +14,9 @@ from schemas.product import (
     SearchHistoryResponse,
 )
 from auth import get_current_user, get_optional_user
+
+# Yapay Zeka Entagrasyonu İçin
+from services.ai_pipeline import generate_3d_model_for_product_task
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -136,8 +140,12 @@ async def sync_dummy_products(db: Session = Depends(get_db)):
 
 
 @router.post("/external-sync", status_code=status.HTTP_201_CREATED)
-async def sync_external_product(product_data: ProductCreate, db: Session = Depends(get_db)):
-    """Amazon veya Trendyol'dan çekilen mobilya verisini DB'ye kaydet"""
+async def sync_external_product(
+    product_data: ProductCreate, 
+    background_tasks: BackgroundTasks, 
+    db: Session = Depends(get_db)
+):
+    """Amazon veya Trendyol'dan çekilen mobilya verisini DB'ye kaydet ve AI Modelini oluştur"""
     # Zaten eklendiyse atla
     existing = db.query(Product).filter(Product.source_url == product_data.source_url).first()
     if existing:
@@ -148,7 +156,7 @@ async def sync_external_product(product_data: ProductCreate, db: Session = Depen
         source_url=product_data.source_url,
         price=product_data.price,
         image_url=product_data.image_url,
-        model_url=product_data.model_url,
+        model_url=product_data.model_url, # AI tamamlanana kadar (eğer varsa) mevcut placeholder model
         category=product_data.category or "Furniture",
         description=product_data.description or "Amazon.com.tr üzerinden çekilen ürün.",
         platform=product_data.platform or "Amazon",
@@ -156,7 +164,18 @@ async def sync_external_product(product_data: ProductCreate, db: Session = Depen
     )
     db.add(new_product)
     db.commit()
-    return {"message": f"'{new_product.name}' isimli ürün başarıyla eklendi.", "status": "added"}
+    db.refresh(new_product)
+
+    # Arka plan görevi başlat (Gemini -> Tripo3D -> DB Güncelleme)
+    if new_product.image_url and new_product.image_url != "Gorsel Yok":
+        background_tasks.add_task(
+            generate_3d_model_for_product_task,
+            str(new_product.id),
+            new_product.name,
+            new_product.image_url
+        )
+
+    return {"message": f"'{new_product.name}' eklendi. AI modeli oluşturuluyor...", "status": "added", "task_started": True}
 
 
 # ─── Favoriler ────────────────────────────────────────────────────────────
