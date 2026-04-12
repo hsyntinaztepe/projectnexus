@@ -35,7 +35,7 @@ def generate_3d_model_for_product_task(product_id: str, product_name: str, image
             product = db.query(Product).filter(Product.id == product_id).first()
             if product:
                 # Backend nerede çalışıyorsa IP/Port ona göre ayarlanmalı
-                new_model_url = f"http://192.168.0.3:8000/media/models/{file_name}"
+                new_model_url = f"http://192.168.0.4:8000/media/models/{file_name}"
                 product.model_url = new_model_url
                 db.commit()
                 print(f"[{product_id}] ✅ Başarılı! Model {new_model_url} kaydedildi.")
