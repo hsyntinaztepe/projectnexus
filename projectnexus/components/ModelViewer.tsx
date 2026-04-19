@@ -3,6 +3,25 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Canvas } from '@react-three/fiber/native';
 import { useGLTF, Bounds, Center, OrbitControls } from '@react-three/drei/native';
 
+class ErrorBoundary extends React.Component<{ children: React.ReactNode, fallback: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true };
+  }
+  componentDidCatch(error: any, errorInfo: any) {
+    console.warn("3D Model loading error caught:", error);
+  }
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    return this.props.children;
+  }
+}
+
 // modelSource: require() → number (bundled asset) veya string (remote URL)
 type ModelSource = string | number;
 
@@ -27,20 +46,28 @@ export default function ModelViewer({ modelSource }: ModelViewerProps) {
 
   return (
     <View style={styles.container}>
-      <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 10]} intensity={1} />
-        
-        <Suspense fallback={null}>
-          <Bounds fit clip observe margin={1.2}>
-            <Center>
-              <GlbModel source={modelSource} />
-            </Center>
-          </Bounds>
-        </Suspense>
-        
-        <OrbitControls enableZoom={true} enablePan={false} enableRotate={true} />
-      </Canvas>
+      <ErrorBoundary fallback={
+        <View style={styles.fallback}>
+          <Text style={{ color: 'white', textAlign: 'center', padding: 20 }}>
+            Model yüklenemedi. Lütfen internet bağlantınızı veya sunucu adresini (http://192.168.0.4:8000) kontrol edin.
+          </Text>
+        </View>
+      }>
+        <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+          <ambientLight intensity={0.5} />
+          <directionalLight position={[10, 10, 10]} intensity={1} />
+          
+          <Suspense fallback={null}>
+            <Bounds fit clip observe margin={1.2}>
+              <Center>
+                <GlbModel source={modelSource} />
+              </Center>
+            </Bounds>
+          </Suspense>
+          
+          <OrbitControls enableZoom={true} enablePan={false} enableRotate={true} />
+        </Canvas>
+      </ErrorBoundary>
     </View>
   );
 }
