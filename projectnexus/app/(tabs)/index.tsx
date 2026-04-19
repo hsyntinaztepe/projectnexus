@@ -1,23 +1,29 @@
 import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Alert,
   FlatList,
-  SafeAreaView,
+  Platform,
+  StatusBar,
   StyleSheet,
   Text,
   View,
   ScrollView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 
 import ProductCard from '@/components/ProductCard';
 import URLInput from '@/components/URLInput';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 import { useProductStore } from '@/store/productStore';
 
 export default function HomeScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { products, isLoadingProducts, error, fetchProducts, setLastSearchedUrl } =
     useProductStore();
     
@@ -28,16 +34,20 @@ export default function HomeScreen() {
     fetchProducts();
   }, []);
 
-  function handleSearch(url: string) {
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      Alert.alert('Geçersiz URL', 'Lütfen geçerli bir ürün linki girin (http:// veya https://).');
+  function handleSearch(query: string) {
+    if (!query) return;
+
+    if (query.startsWith('http://') || query.startsWith('https://')) {
+      setLastSearchedUrl(query);
+      Alert.alert(
+        'URL Alındı ✓',
+        `Ürün verisi çekilecek:\n${query}\n\nBackend entegrasyonu tamamlandığında bu URL otomatik olarak işlenecektir.`,
+      );
       return;
     }
-    setLastSearchedUrl(url);
-    Alert.alert(
-      'URL Alındı ✓',
-      `Ürün verisi çekilecek:\n${url}\n\nBackend entegrasyonu tamamlandığında bu URL otomatik olarak işlenecektir.`,
-    );
+
+    // Normal arama yapıldıysa Ürünler sayfasında filtrele
+    router.push({ pathname: '/products', params: { q: query } });
   }
 
   // Dinamik olarak ürünlerden kategorileri çıkartıyoruz
@@ -53,10 +63,26 @@ export default function HomeScreen() {
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
-      <Text style={styles.title}>Project Nexus</Text>
-      <Text style={styles.subtitle}>Ürün linkini girerek keşfetmeye başla</Text>
+      <View style={styles.logoContainer}>
+        <Text style={styles.logoIcon}>✧</Text>
+        <Text style={styles.title}>Nexus</Text>
+      </View>
+      <Text style={styles.subtitle}>Aradığın tarz mobilyaları ve objeleri keşfet</Text>
 
       <URLInput onSubmit={handleSearch} />
+
+      {/* Tanıtım Afişi */}
+      <View style={styles.bannerContainer}>
+        <Image
+          source={{ uri: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' }}
+          style={styles.bannerImage}
+          resizeMode="cover"
+        />
+        <View style={styles.bannerOverlay}>
+          <Text style={styles.bannerTitle}>Yeni Sezon Şok İndirimler!</Text>
+          <Text style={styles.bannerSubtitle}>Odanıza en uyan akıllı ürünleri keşfedin</Text>
+        </View>
+      </View>
 
       <View style={styles.categoriesSection}>
         <Text style={styles.sectionTitle}>Kategoriler</Text>
@@ -101,7 +127,7 @@ export default function HomeScreen() {
           <>
             {renderHeader()}
             <View style={styles.centered}>
-              <ActivityIndicator size="large" color={Colors.primary} />
+              <ActivityIndicator size="large" color={colors.primary} />
               <Text style={styles.loadingText}>Ürünler yükleniyor...</Text>
             </View>
           </>
@@ -142,34 +168,78 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0,
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   headerContainer: {
     paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.sm,
+    paddingTop: Spacing.md,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.xs,
+  },
+  logoIcon: {
+    fontSize: 24,
+    color: colors.primary,
+    marginRight: 6,
   },
   title: {
     fontSize: 28,
-    fontWeight: '800',
-    color: Colors.text,
-    letterSpacing: -0.5,
+    fontWeight: '900',
+    color: colors.text,
+    letterSpacing: 0.5,
   },
   subtitle: {
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.md,
-    color: Colors.textSecondary,
+    marginBottom: Spacing.lg,
+    color: colors.textSecondary,
     fontSize: 15,
+    fontWeight: '500',
   },
   categoriesSection: {
     marginTop: Spacing.md,
     marginBottom: Spacing.md,
+  },
+  bannerContainer: {
+    height: 140,
+    marginTop: Spacing.md,
+    borderRadius: 16,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  bannerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  bannerOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: Spacing.md,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  bannerTitle: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  bannerSubtitle: {
+    color: '#E0E0E0',
+    fontSize: 14,
+    fontWeight: '500',
   },
   sectionHeaderRow: {
     flexDirection: 'row',
@@ -180,12 +250,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
     marginBottom: Spacing.xs,
   },
   seeAllText: {
     fontSize: 14,
-    color: Colors.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   categoriesScroll: {
@@ -196,19 +266,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: Colors.card,
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     marginRight: Spacing.sm,
   },
   categoryChipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   categoryText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   categoryTextActive: {
     color: '#FFFFFF',
@@ -234,7 +304,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: Spacing.sm,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
   },
   errorIcon: {
@@ -244,12 +314,12 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.text,
+    color: colors.text,
     textAlign: 'center',
   },
   errorSubtext: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: Spacing.xs,
     textAlign: 'center',
   },
@@ -260,6 +330,6 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
 });

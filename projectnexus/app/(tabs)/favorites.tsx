@@ -11,11 +11,14 @@ import {
 } from 'react-native';
 
 import ProductCard from '@/components/ProductCard';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 import { useProductStore } from '@/store/productStore';
 import { useAuthStore } from '@/store/authStore';
 
 export default function FavoritesScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { favorites, isLoadingFavorites, fetchFavorites } = useProductStore();
   const { isAuthenticated } = useAuthStore();
 
@@ -50,7 +53,7 @@ export default function FavoritesScreen() {
       <View style={styles.container}>
         {isLoadingFavorites ? (
           <View style={styles.emptyContainer}>
-            <ActivityIndicator size="large" color={Colors.primary} />
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : favorites.length === 0 ? (
           <View style={styles.emptyContainer}>
@@ -81,15 +84,15 @@ export default function FavoritesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
     padding: Spacing.md,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   emptyContainer: {
     flex: 1,
@@ -104,17 +107,17 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
     marginBottom: Spacing.sm,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
   loginBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 14,
     paddingVertical: 14,
     paddingHorizontal: 32,

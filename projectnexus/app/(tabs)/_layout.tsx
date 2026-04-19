@@ -2,27 +2,37 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function TabLayout() {
+  const { colors } = useTheme();
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textSecondary,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: Colors.card,
-          borderTopColor: Colors.border,
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
         },
         headerShown: true,
-        headerStyle: { backgroundColor: Colors.background },
-        headerTintColor: Colors.text,
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.text,
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Ana Sayfa',
+          headerShown: false,
           tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🏠</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="products"
+        options={{
+          title: 'Ürünler',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🛍️</Text>,
         }}
       />
       <Tabs.Screen

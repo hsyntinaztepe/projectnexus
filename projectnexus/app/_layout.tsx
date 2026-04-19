@@ -6,8 +6,9 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/hooks/useTheme';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -26,6 +27,7 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
   const { loadStoredAuth } = useAuthStore();
+  const { loadTheme } = useThemeStore();
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -34,7 +36,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      loadStoredAuth().finally(() => {
+      Promise.all([loadStoredAuth(), loadTheme()]).finally(() => {
         SplashScreen.hideAsync();
       });
     }
@@ -48,7 +50,8 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme() ?? 'light';
+  const { theme } = useTheme();
+  const colorScheme = theme;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

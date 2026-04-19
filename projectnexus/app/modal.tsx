@@ -2,8 +2,11 @@ import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function ModalScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Project Nexus</Text>
@@ -18,33 +21,33 @@ export default function ModalScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: Spacing.lg,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: Spacing.xs,
   },
   separator: {
     marginVertical: Spacing.lg,
     height: 1,
     width: '80%',
-    backgroundColor: Colors.border,
+    backgroundColor: colors.border,
   },
   info: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },

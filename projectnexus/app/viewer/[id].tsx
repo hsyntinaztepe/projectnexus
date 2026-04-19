@@ -1,8 +1,10 @@
 import { useLocalSearchParams } from 'expo-router';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ModelViewer from '@/components/ModelViewer';
 import { Colors, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 import { useProductStore } from '@/store/productStore';
 
 // Şimdilik tüm ürünler için local Koltuk.glb kullanılıyor.
@@ -10,6 +12,8 @@ import { useProductStore } from '@/store/productStore';
 const LOCAL_MODEL = require('@/assets/models/Koltuk.glb');
 
 export default function ViewerScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { id } = useLocalSearchParams<{ id: string }>();
   const product = useProductStore((state) => state.getProductById(id));
 
@@ -41,24 +45,24 @@ export default function ViewerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
     padding: Spacing.md,
     gap: Spacing.md,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
   },
   subtitle: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
   },
 });

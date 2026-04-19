@@ -2,8 +2,11 @@ import { Link, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function NotFoundScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
     <>
       <Stack.Screen options={{ title: 'Sayfa Bulunamadı' }} />
@@ -18,13 +21,13 @@ export default function NotFoundScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: Spacing.lg,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   emoji: {
     fontSize: 48,
@@ -33,13 +36,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
   },
   link: {
     marginTop: Spacing.md,
     paddingVertical: 12,
     paddingHorizontal: 24,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
   },
   linkText: {

@@ -13,11 +13,14 @@ import {
 } from 'react-native';
 
 import { Colors, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 import { useProductStore } from '@/store/productStore';
 import { useAuthStore } from '@/store/authStore';
 import { productsAPI, type Product } from '@/services/api';
 
 export default function ProductDetail() {
+  const { colors } = useTheme();
+  let styles = createStyles(colors);
   const { id } = useLocalSearchParams<{ id: string }>();
   const { toggleFavorite, isFavorite } = useProductStore();
   const { isAuthenticated } = useAuthStore();
@@ -51,7 +54,7 @@ export default function ProductDetail() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -161,14 +164,14 @@ export default function ProductDetail() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   centered: {
     flex: 1,
@@ -179,17 +182,17 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
   },
   errorSubtitle: {
     marginTop: Spacing.sm,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
   },
   image: {
     width: '100%',
     height: 280,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.card,
   },
   info: {
     padding: Spacing.md,
@@ -203,7 +206,7 @@ const styles = StyleSheet.create({
   category: {
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.primary,
+    color: colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -229,26 +232,26 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 22,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
   },
   dimensions: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   description: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 20,
   },
   price: {
     fontSize: 24,
     fontWeight: '800',
-    color: Colors.accent,
+    color: colors.accent,
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.text,
+    color: colors.text,
     marginTop: Spacing.sm,
   },
   colorRow: {
@@ -261,14 +264,14 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   colorDotSelected: {
-    borderColor: Colors.primary,
+    borderColor: colors.primary,
     borderWidth: 3,
   },
   primaryBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
@@ -280,7 +283,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   secondaryBtn: {
-    backgroundColor: Colors.accent,
+    backgroundColor: colors.accent,
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',

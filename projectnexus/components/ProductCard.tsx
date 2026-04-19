@@ -1,6 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 import type { Product } from '@/services/api';
 
 interface ProductCardProps {
@@ -9,6 +10,8 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onPress }: ProductCardProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
@@ -44,13 +47,13 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: Colors.card,
+    backgroundColor: colors.card,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     overflow: 'hidden',
   },
   cardPressed: {
@@ -86,17 +89,17 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   name: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 14,
     fontWeight: '600',
     minHeight: 36,
   },
   dimensions: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 11,
   },
   price: {
-    color: Colors.primary,
+    color: colors.primary,
     fontSize: 14,
     fontWeight: '700',
     marginTop: 2,

@@ -1,33 +1,156 @@
-import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { Alert, Linking, StyleSheet, Text, TouchableOpacity, View, Platform, StatusBar, Animated } from 'react-native';
 import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors, Spacing } from '@/constants/theme';
 import { useProductStore } from '@/store/productStore';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function ProfileScreen() {
-  const { favorites, products, lastSearchedUrl } = useProductStore();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+  const { favorites, products, lastSearchedUrl, setLastSearchedUrl } = useProductStore();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const sysThemeMode = useThemeStore((state) => state.themeMode);
+  const setTheme = useThemeStore((state) => state.setTheme);
+  
+  // Bildirim durumu için basit bir state
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  
+  // Custom Toast State
+  const [toastMessage, setToastMessage] = useState('');
+  const slideAnim = useRef(new Animated.Value(-300)).current;
 
+  // Özel Bildirim Gösterme Fonksiyonu
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    Animated.sequence([
+      Animated.timing(slideAnim, {
+        toValue: Platform.OS === 'android' ? (StatusBar.currentHeight || 20) + 10 : 50,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.delay(3000),
+      Animated.timing(slideAnim, {
+        toValue: -300,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setToastMessage(''));
+  };
+
+  // 1. Çıkış Yap İşlemi
   async function handleLogout() {
     Alert.alert(
       'Çıkış Yap',
-      'Hesabınızdan çıkış yapmak istediğinize emin misiniz?',
+      'Hesabınızdan güvenli bir şekilde çıkış yapmak istediğinize emin misiniz?',
       [
-        { text: 'İptal', style: 'cancel' },
+        { text: 'Vazgeç', style: 'cancel' },
         {
           text: 'Çıkış Yap',
           style: 'destructive',
           onPress: async () => {
             await logout();
+            Alert.alert('Başarılı', 'Hesabınızdan çıkış yapıldı.');
           },
         },
       ],
     );
   }
 
+  // 2. Bildirimler İşlemi
+  async function handleNotifications() {
+    Alert.alert(
+      'Bildirim Tercihleri',
+      notificationsEnabled 
+        ? 'Şu anda bildirimleri alıyorsunuz. Kapatmak ister misiniz?' 
+        : 'İndirimler ve yeni ürünler hakkında bildirim almak ister misiniz?',
+      [
+        { text: 'İptal', style: 'cancel' },
+        { 
+          text: notificationsEnabled ? 'Bildirimleri Kapat' : 'Bildirimleri Aç', 
+          style: notificationsEnabled ? 'destructive' : 'default',
+          onPress: async () => {
+            const willEnable = !notificationsEnabled;
+            
+            if (willEnable) {
+              setNotificationsEnabled(true);
+              showToast("🔔 Bildirimler başarıyla açıldı! Artık indirimleri kaçırmayacaksın.");
+            } else {
+              setNotificationsEnabled(false);
+              showToast("🔕 Bildirimler sessize alındı.");
+            }
+          } 
+        }
+      ]
+    );
+  }
+
+  // 3. Ayarlar İşlemi
+  function handleSettings() {
+    Alert.alert(
+      'Görünüm ve Tercihler',
+      `Şu anki mod: ${sysThemeMode}\nUygulama temasını yapılandırın:`,
+      [
+        { text: 'Açık Tema', onPress: () => { setTheme('light'); showToast('Açık Tema Aktif'); } },
+        { text: 'Koyu Tema', onPress: () => { setTheme('dark'); showToast('Koyu Tema Aktif'); } },
+        { text: 'Sistem Teması', onPress: () => { setTheme('system'); showToast('Sistem Teması Aktif'); } },
+        { text: 'Vazgeç', style: 'cancel' }
+      ]
+    );
+  }
+
+  // 4. Arama Geçmişi İşlemi
+  function handleHistory() {
+    if (!lastSearchedUrl) {
+      Alert.alert('Arama Geçmişi', 'Şu zamana kadar hiçbir ürün aratmadınız. Biraz vitrine göz atmaya ne dersiniz?');
+      return;
+    }
+    Alert.alert(
+      'Son Yapılan Arama',
+      `Arama Metni/URL: \n${lastSearchedUrl}`,
+      [
+        { 
+          text: 'Geçmişi Temizle', 
+          style: 'destructive', 
+          onPress: () => {
+            setLastSearchedUrl(''); // Store üzerinden geçmişi temizleme yetkisi (store'da tanımlıysa)
+            Alert.alert('Temizlendi', 'Arama geçmişiniz başarıyla silindi.');
+          } 
+        },
+        { 
+          text: 'Tekrar Ara', 
+          style: 'default',
+          onPress: () => router.push('/(tabs)') // Kullanıcıyı arama ekranına geri at
+        },
+        { text: 'Kapat', style: 'cancel' }
+      ]
+    );
+  }
+
+  // 5. Hakkında İşlemi
+  function handleAbout() {
+    Alert.alert(
+      'Hakkında',
+      'Project Nexus v1.0.0\n\nGeliştirici: Nexus Ekibi\n© 2026 Tüm Hakları Saklıdır.\n\nEviniz için en iyi mobilya ve dekorasyon ürünlerini zeka destekli altyapımızla sunuyoruz.',
+      [
+        { 
+          text: 'Web Sitemizi Ziyaret Et', 
+          onPress: () => Linking.openURL('https://github.com').catch(() => Alert.alert('Hata', 'Web sitesi açılamadı.'))
+        },
+        { text: 'Tamam', style: 'cancel' }
+      ]
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
+      <Animated.View style={[styles.customToast, { transform: [{ translateY: slideAnim }] }]}>
+        <Text style={styles.toastText}>{toastMessage}</Text>
+      </Animated.View>
       <View style={styles.container}>
         {/* Avatar */}
         <View style={styles.avatarContainer}>
@@ -74,21 +197,26 @@ export default function ProfileScreen() {
 
         {/* Menü */}
         <View style={styles.menu}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={handleNotifications}>
             <Text style={styles.menuIcon}>🔔</Text>
             <Text style={styles.menuText}>Bildirimler</Text>
+            <Text style={styles.menuStatus}>{notificationsEnabled ? 'Açık' : 'Kapalı'}</Text>
+            <Text style={styles.menuChevron}>›</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={handleSettings}>
             <Text style={styles.menuIcon}>⚙️</Text>
             <Text style={styles.menuText}>Ayarlar</Text>
+            <Text style={styles.menuChevron}>›</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={handleHistory}>
             <Text style={styles.menuIcon}>📋</Text>
             <Text style={styles.menuText}>Arama Geçmişi</Text>
+            <Text style={styles.menuChevron}>›</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={handleAbout}>
             <Text style={styles.menuIcon}>ℹ️</Text>
             <Text style={styles.menuText}>Hakkında</Text>
+            <Text style={styles.menuChevron}>›</Text>
           </TouchableOpacity>
           {isAuthenticated && (
             <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
@@ -104,15 +232,36 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
     padding: Spacing.md,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
+  },
+  customToast: {
+    position: 'absolute',
+    top: 0,
+    left: Spacing.lg,
+    right: Spacing.lg,
+    backgroundColor: colors.primary,
+    padding: Spacing.md,
+    borderRadius: 12,
+    zIndex: 9999,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+  toastText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   avatarContainer: {
     alignItems: 'center',
@@ -122,7 +271,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.border,
+    backgroundColor: colors.border,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.sm,
@@ -133,15 +282,15 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
   },
   email: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   loginBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
@@ -154,12 +303,12 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: 'row',
-    backgroundColor: Colors.card,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: Spacing.md,
     marginBottom: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   statItem: {
     flex: 1,
@@ -168,22 +317,22 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 22,
     fontWeight: '800',
-    color: Colors.primary,
+    color: colors.primary,
   },
   statLabel: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   statDivider: {
     width: 1,
-    backgroundColor: Colors.border,
+    backgroundColor: colors.border,
   },
   menu: {
-    backgroundColor: Colors.card,
+    backgroundColor: colors.card,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     overflow: 'hidden',
   },
   menuItem: {
@@ -192,7 +341,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: colors.border,
   },
   menuIcon: {
     fontSize: 20,
@@ -200,11 +349,23 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontSize: 16,
-    color: Colors.text,
+    color: colors.text,
+    flex: 1,
+    fontWeight: '500',
+  },
+  menuStatus: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginRight: 8,
+  },
+  menuChevron: {
+    fontSize: 22,
+    color: colors.textSecondary,
+    fontWeight: '300',
   },
   version: {
     textAlign: 'center',
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     marginTop: 'auto',
     paddingBottom: Spacing.md,

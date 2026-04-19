@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 
 interface URLInputProps {
   onSubmit: (url: string) => void;
 }
 
 export default function URLInput({ onSubmit }: URLInputProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [url, setUrl] = useState('');
 
   function handleSubmit() {
@@ -23,12 +26,12 @@ export default function URLInput({ onSubmit }: URLInputProps) {
     <View style={styles.container}>
       <TextInput
         style={styles.input}
-        placeholder="Ürün linkini yapıştır..."
+        placeholderTextColor={colors.textSecondary}
+        placeholder="Ürün ara... (Örn: Sehpa)"
         value={url}
         onChangeText={setUrl}
         autoCapitalize="none"
         autoCorrect={false}
-        keyboardType="url"
       />
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>→</Text>
@@ -37,7 +40,7 @@ export default function URLInput({ onSubmit }: URLInputProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     gap: Spacing.sm,
@@ -46,16 +49,17 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
-    backgroundColor: Colors.card,
+    backgroundColor: colors.card,
+      color: colors.text,
   },
   button: {
     width: 48,
     borderRadius: 12,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },

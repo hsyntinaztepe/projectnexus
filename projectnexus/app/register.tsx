@@ -15,9 +15,12 @@ import {
 import { router } from 'expo-router';
 
 import { Colors, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 import { useAuthStore } from '@/store/authStore';
 
 export default function RegisterScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [fullName, setFullName] = useState('');
@@ -83,7 +86,7 @@ export default function RegisterScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Adınız Soyadınız"
-                placeholderTextColor={Colors.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={fullName}
                 onChangeText={setFullName}
                 autoComplete="name"
@@ -95,7 +98,7 @@ export default function RegisterScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="kullanici_adi"
-                placeholderTextColor={Colors.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
@@ -108,7 +111,7 @@ export default function RegisterScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="ornek@email.com"
-                placeholderTextColor={Colors.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
@@ -122,7 +125,7 @@ export default function RegisterScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="En az 6 karakter"
-                placeholderTextColor={Colors.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -134,7 +137,7 @@ export default function RegisterScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Şifrenizi tekrar girin"
-                placeholderTextColor={Colors.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
@@ -167,11 +170,11 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1 },
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   container: {
     flexGrow: 1,
@@ -189,19 +192,19 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
     fontWeight: '800',
-    color: Colors.text,
+    color: colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
   formCard: {
-    backgroundColor: Colors.card,
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   inputGroup: {
     marginBottom: Spacing.md,
@@ -209,21 +212,21 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 13,
     fontWeight: '600',
-    color: Colors.text,
+    color: colors.text,
     marginBottom: 6,
   },
   input: {
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
   },
   primaryBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
@@ -243,11 +246,11 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
   },
   footerText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
   },
   linkText: {
-    color: Colors.primary,
+    color: colors.primary,
     fontSize: 14,
     fontWeight: '700',
   },
