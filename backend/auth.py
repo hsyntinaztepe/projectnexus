@@ -78,7 +78,7 @@ async def get_current_user(
 
     return user
 
-
+# tripo: tsk_IHiz-ugFOLyM8GoXHGl07CMgd20VzAAIJlc2EZwjSz4
 # Optional auth — returns None instead of raising error
 async def get_optional_user(
     credentials: HTTPAuthorizationCredentials = Depends(

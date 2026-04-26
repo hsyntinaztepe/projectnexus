@@ -16,7 +16,7 @@ import { Colors, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useProductStore } from '@/store/productStore';
 import { useAuthStore } from '@/store/authStore';
-import { productsAPI, type Product } from '@/services/api';
+import { productsAPI, recordBuyClick, type Product } from '@/services/api';
 
 export default function ProductDetail() {
   const { colors } = useTheme();
@@ -82,6 +82,7 @@ export default function ProductDetail() {
   }
 
   function handleBuy() {
+    recordBuyClick(product!.id);
     Linking.openURL(product!.source_url);
   }
 

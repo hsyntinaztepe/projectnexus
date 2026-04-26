@@ -5,13 +5,14 @@ import json
 import os
 
 from database import get_db
-from models.schemas import Product, Favorite, SearchHistory, User
+from models.schemas import Product, Favorite, SearchHistory, User, AffiliateClick
 from schemas.product import (
     ProductResponse,
     ProductCreate,
     ProductUpdate,
     FavoriteResponse,
     SearchHistoryResponse,
+    AffiliateClickResponse,
 )
 from auth import get_current_user, get_optional_user
 
@@ -251,6 +252,31 @@ async def check_favorite(
         Favorite.product_id == product_id,
     ).first()
     return {"is_favorite": existing is not None}
+
+
+# ─── Satın Al Tıklaması (Affiliate) ──────────────────────────────────────
+
+@router.post("/{product_id}/click", status_code=status.HTTP_201_CREATED)
+async def record_buy_click(
+    product_id: str,
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_optional_user),
+):
+    """Kullanıcı 'Satın Al' butonuna tıkladığında affiliate tıklamasını kaydeder"""
+    product = db.query(Product).filter(Product.id == product_id, Product.is_active == True).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Ürün bulunamadı")
+
+    click = AffiliateClick(
+        product_id=product.id,
+        product_name=product.name,
+        platform=product.platform,
+        source_url=product.source_url,
+        user_id=current_user.id if current_user else None,
+    )
+    db.add(click)
+    db.commit()
+    return {"message": "Tıklama kaydedildi"}
 
 
 # ─── Arama Geçmişi ────────────────────────────────────────────────────────

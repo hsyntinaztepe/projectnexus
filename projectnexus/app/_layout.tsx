@@ -81,6 +81,10 @@ function RootLayoutNav() {
             name="viewer/[id]"
             options={{ title: '3D Görüntüleyici', headerBackTitle: 'Geri' }}
           />
+          <Stack.Screen
+            name="admin"
+            options={{ title: 'Admin Panel', headerBackTitle: 'Geri' }}
+          />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>
       </ThemeProvider>

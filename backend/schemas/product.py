@@ -70,3 +70,21 @@ class SearchHistoryResponse(BaseModel):
     searched_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class AffiliateClickResponse(BaseModel):
+    id: int
+    product_id: str
+    product_name: str
+    platform: str | None = None
+    source_url: str | None = None
+    user_id: str | None = None
+    clicked_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AffiliateStatsResponse(BaseModel):
+    total_clicks: int
+    by_platform: dict[str, int]
+    recent_clicks: list[AffiliateClickResponse]

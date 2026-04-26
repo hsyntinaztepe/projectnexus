@@ -136,6 +136,35 @@ export const productsAPI = {
     }),
 };
 
+// ─── Admin API ─────────────────────────────────────────────────────────
+
+export interface AffiliateClick {
+  id: number;
+  product_id: string;
+  product_name: string;
+  platform: string | null;
+  source_url: string | null;
+  user_id: string | null;
+  clicked_at: string;
+}
+
+export interface AffiliateStats {
+  total_clicks: number;
+  by_platform: Record<string, number>;
+  recent_clicks: AffiliateClick[];
+}
+
+export const adminAPI = {
+  getStats: () => api.get<AffiliateStats>('/admin/clicks'),
+  listClicks: (skip = 0, limit = 50) =>
+    api.get<AffiliateClick[]>('/admin/clicks/list', { params: { skip, limit } }),
+};
+
+// ─── Affiliate Click ───────────────────────────────────────────────────
+
+export const recordBuyClick = (productId: string) =>
+  api.post(`/products/${productId}/click`).catch(() => {});
+
 // Health check
 export const healthCheck = () => api.get('/health');
 

@@ -197,6 +197,17 @@ export default function ProfileScreen() {
 
         {/* Menü */}
         <View style={styles.menu}>
+          {isAuthenticated && user?.email === 'admin@demo.com' && (
+            <TouchableOpacity
+              style={[styles.menuItem, styles.adminMenuItem]}
+              onPress={() => router.push('/admin')}
+            >
+              <Text style={styles.menuIcon}>📊</Text>
+              <Text style={[styles.menuText, styles.adminMenuText]}>Admin Paneli</Text>
+              <Text style={styles.adminBadge}>ADMIN</Text>
+              <Text style={styles.menuChevron}>›</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.menuItem} onPress={handleNotifications}>
             <Text style={styles.menuIcon}>🔔</Text>
             <Text style={styles.menuText}>Bildirimler</Text>
@@ -362,6 +373,24 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 22,
     color: colors.textSecondary,
     fontWeight: '300',
+  },
+  adminMenuItem: {
+    backgroundColor: colors.primary + '15',
+  },
+  adminMenuText: {
+    color: colors.primary,
+    fontWeight: '700',
+  },
+  adminBadge: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFF',
+    backgroundColor: colors.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginRight: 6,
+    overflow: 'hidden',
   },
   version: {
     textAlign: 'center',

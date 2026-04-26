@@ -1,9 +1,13 @@
 import os
 import asyncio
+from dotenv import load_dotenv
 from models.schemas import Product
 from database import SessionLocal
 from services.gemini_service import generate_3d_prompt_for_product
 from services.tripo_service import create_tripo_task, download_model
+
+load_dotenv()
+BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://127.0.0.1:8000")
 
 def generate_3d_model_for_product_task(product_id: str, product_name: str, image_url: str):
     """
@@ -34,8 +38,7 @@ def generate_3d_model_for_product_task(product_id: str, product_name: str, image
             print(f"[{product_id}] 4. Adım: Veritabanı Güncelleniyor...")
             product = db.query(Product).filter(Product.id == product_id).first()
             if product:
-                # Backend nerede çalışıyorsa IP/Port ona göre ayarlanmalı
-                new_model_url = f"http://192.168.0.4:8000/media/models/{file_name}"
+                new_model_url = f"{BACKEND_BASE_URL}/media/models/{file_name}"
                 product.model_url = new_model_url
                 db.commit()
                 print(f"[{product_id}] ✅ Başarılı! Model {new_model_url} kaydedildi.")

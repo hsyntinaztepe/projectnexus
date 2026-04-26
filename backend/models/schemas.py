@@ -61,3 +61,17 @@ class Favorite(Base):
 
     user = relationship("User", back_populates="favorites")
     product = relationship("Product", back_populates="favorites")
+
+
+class AffiliateClick(Base):
+    __tablename__ = "affiliate_clicks"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    product_id = Column(String, ForeignKey("products.id"), nullable=False)
+    product_name = Column(String, nullable=False)
+    platform = Column(String, nullable=True)
+    source_url = Column(String, nullable=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=True)
+    clicked_at = Column(DateTime, default=datetime.utcnow)
+
+    product = relationship("Product")
+    user = relationship("User")

@@ -6,10 +6,24 @@ import ModelViewer from '@/components/ModelViewer';
 import { Colors, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useProductStore } from '@/store/productStore';
+import api from '@/services/api';
 
-// Şimdilik tüm ürünler için local Koltuk.glb kullanılıyor.
-// İleride: Gemini API → prompt oluştur → Meshy API → 3D model üret → indir → göster
 const LOCAL_MODEL = require('@/assets/models/Koltuk.glb');
+
+/**
+ * DB'de saklanan model_url içindeki origin'i (IP:PORT),
+ * axios'un kullandığı gerçek baseURL ile değiştirir.
+ * Örnek: http://192.168.0.4:8000/media/... → http://10.0.2.2:8000/media/...
+ */
+function resolveModelUrl(rawUrl: string): string {
+  const base = (api.defaults.baseURL || '').replace(/\/$/, '');
+  try {
+    const u = new URL(rawUrl);
+    return base + u.pathname;
+  } catch {
+    return rawUrl;
+  }
+}
 
 export default function ViewerScreen() {
   const { colors } = useTheme();
@@ -28,10 +42,8 @@ export default function ViewerScreen() {
     );
   }
 
-  // Local bundled asset kullanıyoruz (require -> number döner)
-  // AI pipeline'dan gelen "model_url" (http://...) varsa onu direk useGLTF hook'una string (URL) olarak paslıyoruz.
-  const modelSource = product.model_url && product.model_url.startsWith('http') 
-    ? product.model_url 
+  const modelSource = product.model_url && product.model_url.startsWith('http')
+    ? resolveModelUrl(product.model_url)
     : LOCAL_MODEL;
 
   return (

@@ -39,3 +39,7 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+.claude/
+
+# Generated 3D models
+backend/media/models/*.glb
