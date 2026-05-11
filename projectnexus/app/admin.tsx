@@ -3,16 +3,18 @@ import {
   ActivityIndicator,
   Animated,
   FlatList,
+  Modal,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { adminAPI, type AffiliateClick, type AffiliateStats } from '@/services/api';
+import { adminAPI, productsAPI, type AffiliateClick, type AffiliateStats, type Product } from '@/services/api';
 
 // ─── Veri Yardımcıları ────────────────────────────────────────────────────────
 
@@ -217,6 +219,12 @@ export default function AdminScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Modal ve ürün analiz state'leri
+  const [isProductsModalVisible, setProductsModalVisible] = useState(false);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [isProductsLoading, setIsProductsLoading] = useState(false);
+  const [selectedProductStats, setSelectedProductStats] = useState<{name: string, count: number} | null>(null);
+
   async function loadStats() {
     try {
       const res = await adminAPI.getStats();
@@ -235,6 +243,37 @@ export default function AdminScreen() {
   function onRefresh() {
     setRefreshing(true);
     loadStats();
+  }
+
+  async function openProductsModal() {
+    setProductsModalVisible(true);
+    if (allProducts.length === 0) {
+      setIsProductsLoading(true);
+      try {
+        const res = await productsAPI.list({ limit: 100 });
+        setAllProducts(res.data);
+      } catch (err) {
+        console.error("Ürünler yüklenemedi", err);
+      } finally {
+        setIsProductsLoading(false);
+      }
+    }
+  }
+
+  async function loadProductClicks(product: Product) {
+    try {
+      const res = await adminAPI.getProductClicks(product.id);
+      setSelectedProductStats({
+        name: product.name,
+        count: res.data.click_count,
+      });
+    } catch (err) {
+      console.error("Ürün tıklama sayısı yüklenemedi", err);
+      setSelectedProductStats({
+        name: product.name,
+        count: 0,
+      });
+    }
   }
 
   function formatDate(iso: string) {
@@ -370,6 +409,51 @@ export default function AdminScreen() {
         }
         renderItem={renderClick}
       />
+
+      <View style={styles.bottomActionContainer}>
+        <TouchableOpacity style={styles.selectProductBtn} onPress={openProductsModal}>
+          <Text style={styles.selectProductBtnText}>📦 Ürün Tıklama Analizi İçin Ürün Seç</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Modal visible={isProductsModalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Analiz İçin Ürün Seçin</Text>
+              <TouchableOpacity onPress={() => { setProductsModalVisible(false); setSelectedProductStats(null); }}>
+                <Text style={styles.closeModalText}>Kapat</Text>
+              </TouchableOpacity>
+            </View>
+
+            {selectedProductStats && (
+              <View style={styles.statsCard}>
+                <Text style={styles.statsCardLabel}>{selectedProductStats.name}</Text>
+                <Text style={styles.statsCardValue}>
+                  {selectedProductStats.count} <Text style={{ fontSize: 14, color: '#AAA' }}>Tıklama</Text>
+                </Text>
+              </View>
+            )}
+
+            {isProductsLoading ? (
+              <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
+            ) : (
+              <FlatList
+                data={allProducts}
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item }) => (
+                  <TouchableOpacity style={styles.modalItem} onPress={() => loadProductClicks(item)}>
+                    <Text style={styles.modalItemName}>{item.name}</Text>
+                    <Text style={styles.modalItemPlatform}>{item.platform}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -442,4 +526,85 @@ const createStyles = (colors: any) => StyleSheet.create({
   empty: { alignItems: 'center', paddingTop: 40 },
   emptyIcon: { fontSize: 48, marginBottom: Spacing.md },
   emptyText: { fontSize: 15, color: colors.textSecondary },
+
+  bottomActionContainer: {
+    padding: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
+  },
+  selectProductBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  selectProductBtnText: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '85%',
+    padding: Spacing.md,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  closeModalText: {
+    color: colors.accent,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  statsCard: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+  },
+  statsCardLabel: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  statsCardValue: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: colors.primary,
+  },
+  modalItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalItemName: {
+    fontSize: 15,
+    color: colors.text,
+    fontWeight: '600',
+  },
+  modalItemPlatform: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
 });

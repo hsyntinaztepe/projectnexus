@@ -65,3 +65,49 @@ def generate_3d_prompt_for_product(product_name: str, image_url: str):
     except Exception as e:
         print(f"Gemini AI Prompt Oluşturma Hatası: {e}")
         return f"A 3D model of a highly detailed {product_name}"
+
+
+def generate_custom_design_prompt(product_name: str, image_url: str, user_prompt: str):
+    """
+    Kullanıcının girdiği isteğe göre mevcut mobilyayı yeniden tasarlamak için Tripo3D uyumlu prompt üretir.
+    """
+    if not GEMINI_API_KEY:
+        return f"A 3D model of {product_name}, modified: {user_prompt}"
+        
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        img_response = requests.get(image_url, headers=headers, timeout=10)
+        img_response.raise_for_status()
+        img_data = img_response.content
+        mime_type = img_response.headers.get("Content-Type", "image/jpeg")
+        
+        prompt_instruction = f"""
+        You are an expert 3D modeling prompt engineer. 
+        I have a product named: '{product_name}'.
+        Please analyze the attached image of this product.
+        The user wants to modify this product with the following instructions: "{user_prompt}"
+        
+        Write a highly detailed, descriptive text prompt (in English) to generate a NEW 3D model based on the user's modifications.
+        Keep the original core structure unless the user changed it. Focus on the requested changes (materials, colors, shape).
+        Include lighting or rendering keywords that help create a realistic 3D model (e.g., physically based rendering, 8k resolution, photorealistic).
+        
+        Keep it concise but highly descriptive (around 2-3 sentences max). Do not include any conversational text, just return the prompt string.
+        """
+        
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        image_part = {
+            "mime_type": mime_type,
+            "data": img_data
+        }
+        
+        response = model.generate_content([prompt_instruction, image_part])
+        
+        if response.text:
+            return response.text.strip()
+        else:
+            return f"A 3D model of {product_name}, with design changes: {user_prompt}"
+            
+    except Exception as e:
+        print(f"Gemini Custom AI Prompt Hatası: {e}")
+        return f"A 3D model of {product_name}, with design changes: {user_prompt}"

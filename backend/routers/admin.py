@@ -58,3 +58,13 @@ async def list_affiliate_clicks(
         .all()
     )
     return [AffiliateClickResponse.model_validate(c) for c in clicks]
+
+@router.get("/clicks/product/{product_id}")
+async def get_product_clicks(
+    product_id: str,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin),
+):
+    """Belirli bir ürünün toplam tıklanma sayısını döner"""
+    click_count = db.query(AffiliateClick).filter(AffiliateClick.product_id == product_id).count()
+    return {"product_id": product_id, "click_count": click_count}

@@ -75,3 +75,16 @@ class AffiliateClick(Base):
 
     product = relationship("Product")
     user = relationship("User")
+
+
+class UserDesign(Base):
+    __tablename__ = "user_designs"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    original_product_id = Column(String, ForeignKey("products.id"), nullable=False)
+    prompt = Column(String, nullable=False)
+    model_url = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")
+    original_product = relationship("Product")

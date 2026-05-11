@@ -156,6 +156,12 @@ export default function ProductDetail() {
             <Text style={styles.primaryBtnText}>🔮 3D İncele</Text>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={styles.compareBtn}
+            onPress={() => router.push({ pathname: '/compare/[id]', params: { id: product.id } })}>
+            <Text style={styles.compareBtnText}>🔄 Karşılaştır</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.secondaryBtn} onPress={handleBuy}>
             <Text style={styles.secondaryBtnText}>🛒 Satın Al</Text>
           </TouchableOpacity>
@@ -280,6 +286,19 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   primaryBtnText: {
     color: '#FFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  compareBtn: {
+    backgroundColor: colors.card,
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  compareBtnText: {
+    color: colors.text,
     fontSize: 16,
     fontWeight: '700',
   },

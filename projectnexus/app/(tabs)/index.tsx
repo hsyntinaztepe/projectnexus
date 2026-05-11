@@ -20,13 +20,15 @@ import URLInput from '@/components/URLInput';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useProductStore } from '@/store/productStore';
+import { useAuthStore } from '@/store/authStore';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
   const styles = createStyles(colors);
   const { products, isLoadingProducts, error, fetchProducts, setLastSearchedUrl } =
     useProductStore();
-    
+  const { user, isAuthenticated } = useAuthStore();
+  
   // Seçili kategori state'i
   const [activeCategory, setActiveCategory] = useState<string>('Tümü');
 
@@ -63,11 +65,36 @@ export default function HomeScreen() {
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
-      <View style={styles.logoContainer}>
-        <Text style={styles.logoIcon}>✧</Text>
-        <Text style={styles.title}>Nexus</Text>
+      <View style={styles.topRow}>
+        <View style={styles.brandContainer}>
+          <View style={styles.logoContainer}>
+            <Text style={styles.logoIcon}>✧</Text>
+            <Text style={styles.title}>Nexus</Text>
+          </View>
+          <Text style={styles.subtitle}>Aradığın tarz mobilyaları ve objeleri keşfet</Text>
+        </View>
+
+        <TouchableOpacity 
+          style={styles.profileBtn} 
+          onPress={() => router.push(isAuthenticated ? '/profile' : '/login')}
+        >
+          <View style={styles.profileTextContainer}>
+            <Text style={styles.welcomeText}>Hoş geldin,</Text>
+            <Text style={styles.userNameText} numberOfLines={1}>
+              {isAuthenticated ? (user?.username || 'Kullanıcı') : 'Ziyaretçi'}
+            </Text>
+          </View>
+          {isAuthenticated && user?.avatar_url ? (
+            <Image source={{ uri: user.avatar_url }} style={styles.avatarImage} />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <Text style={styles.avatarText}>
+                {isAuthenticated ? (user?.username ? user.username[0].toUpperCase() : '👤') : '👤'}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
-      <Text style={styles.subtitle}>Aradığın tarz mobilyaları ve objeleri keşfet</Text>
 
       <URLInput onSubmit={handleSearch} />
 
@@ -182,10 +209,63 @@ const createStyles = (colors: any) => StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingTop: Spacing.md,
   },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  brandContainer: {
+    flex: 1,
+  },
+  profileBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 40,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  profileTextContainer: {
+    marginRight: 12,
+    alignItems: 'flex-end',
+  },
+  welcomeText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  userNameText: {
+    fontSize: 16,
+    color: colors.text,
+    fontWeight: '700',
+    maxWidth: 110,
+  },
+  avatarImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.border,
+  },
+  avatarPlaceholder: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    color: '#FFF',
+    fontSize: 20,
+    fontWeight: '700',
+  },
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.xs,
+    marginBottom: 4,
   },
   logoIcon: {
     fontSize: 24,
@@ -199,9 +279,8 @@ const createStyles = (colors: any) => StyleSheet.create({
     letterSpacing: 0.5,
   },
   subtitle: {
-    marginBottom: Spacing.lg,
     color: colors.textSecondary,
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '500',
   },
   categoriesSection: {

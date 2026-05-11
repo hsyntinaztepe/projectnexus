@@ -5,7 +5,7 @@ import json
 import os
 
 from database import get_db
-from models.schemas import Product, Favorite, SearchHistory, User, AffiliateClick
+from models.schemas import Product, Favorite, SearchHistory, User, AffiliateClick, UserDesign
 from schemas.product import (
     ProductResponse,
     ProductCreate,
@@ -13,11 +13,15 @@ from schemas.product import (
     FavoriteResponse,
     SearchHistoryResponse,
     AffiliateClickResponse,
+    DesignRequest,
+    CustomDesignResponse
 )
 from auth import get_current_user, get_optional_user
 
 # Yapay Zeka Entagrasyonu İçin
 from services.ai_pipeline import generate_3d_model_for_product_task
+from services.gemini_service import generate_custom_design_prompt
+from services.tripo_service import create_tripo_task, wait_for_tripo_url
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -314,3 +318,70 @@ async def add_search_history(
     db.add(entry)
     db.commit()
     return {"message": "Arama kaydedildi"}
+
+
+# ─── Custom Design Yaratma (Kullanıcı Talebi) ───────────────────────────
+
+@router.post("/{product_id}/generate-design")
+async def generate_custom_design(
+    product_id: str,
+    request: DesignRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Seçili ürün ve prompt üzerinden Gemini ve Tripo ile modeli hemen oluşturur, bitmesini bekler.
+    Model URL'si ile birlikte db'ye kaydetmeden önce önizleme imkanı sunar.
+    """
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Ürün bulunamadı")
+        
+    if not product.image_url or product.image_url == "Gorsel Yok":
+        raise HTTPException(status_code=400, detail="Ürünün görseli bulunmuyor.")
+
+    # 1. Gemini ile Prompt'u geliştir
+    refined_prompt = generate_custom_design_prompt(product.name, product.image_url, request.prompt)
+    if not refined_prompt:
+        raise HTTPException(status_code=500, detail="Prompt üretilemedi.")
+        
+    print(f"Gemini Refined Prompt: {refined_prompt}")
+
+    # 2. Tripo3D model task oluştur
+    task_id = create_tripo_task(prompt=refined_prompt)
+    if not task_id:
+        raise HTTPException(status_code=500, detail="Tripo3D servisi başlatılamadı.")
+
+    print(f"Tripo3D task başlatıldı: {task_id}")
+
+    # 3. Model linki dönene kadar bekle
+    model_url = wait_for_tripo_url(task_id, max_retries=60, sleep_time=5)
+    if not model_url:
+        raise HTTPException(status_code=500, detail="Tripo3D model üretiminde hata oluştu veya zaman aşımına uğradı.")
+
+    return {
+        "status": "success",
+        "model_url": model_url,
+        "refined_prompt": refined_prompt
+    }
+
+
+@router.post("/{product_id}/save-design", response_model=CustomDesignResponse)
+async def save_custom_design(
+    product_id: str,
+    model_url: str = Query(..., description="Üretilen geçici model url'i"),
+    prompt: str = Query(..., description="Kullanıcının girdiği text (veya ai prompt)"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Üretilen custom model beğenildiyse db'ye kalıcı olarak UserDesigns tablosuna kaydet."""
+    design = UserDesign(
+        user_id=current_user.id,
+        original_product_id=product_id,
+        model_url=model_url,
+        prompt=prompt
+    )
+    db.add(design)
+    db.commit()
+    db.refresh(design)
+    return CustomDesignResponse.model_validate(design)

@@ -96,3 +96,34 @@ def download_model(task_id: str, output_path: str, max_retries=60, sleep_time=5)
         time.sleep(sleep_time)
     
     return False
+
+
+def wait_for_tripo_url(task_id: str, max_retries=60, sleep_time=5):
+    """
+    Görevin tamamlanmasını bekler ve üretilen model URL'sini döndürür (diske indirmez).
+    """
+    for _ in range(max_retries):
+        status_data = get_tripo_task_status(task_id)
+        if not status_data:
+            time.sleep(sleep_time)
+            continue
+            
+        status = status_data.get("status")
+        print(f"Tripo3D Task Status (URL polling): {status}")
+        
+        if status == "success":
+            model_url = None
+            if "result" in status_data and "pbr_model" in status_data["result"]:
+                model_url = status_data["result"]["pbr_model"]["url"]
+            elif "output" in status_data and "pbr_model" in status_data["output"]:
+                model_url = status_data["output"]["pbr_model"]
+            
+            return model_url
+            
+        elif status in ["failed", "cancelled"]:
+            print("Model oluşturma başarısız oldu veya iptal edildi.")
+            return None
+            
+        time.sleep(sleep_time)
+    
+    return None

@@ -88,3 +88,18 @@ class AffiliateStatsResponse(BaseModel):
     total_clicks: int
     by_platform: dict[str, int]
     recent_clicks: list[AffiliateClickResponse]
+
+
+class DesignRequest(BaseModel):
+    prompt: str
+
+
+class CustomDesignResponse(BaseModel):
+    id: str
+    user_id: str
+    original_product_id: str
+    prompt: str
+    model_url: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

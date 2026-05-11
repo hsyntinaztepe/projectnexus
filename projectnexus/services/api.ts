@@ -134,6 +134,15 @@ export const productsAPI = {
     api.post('/products/user/search-history', null, {
       params: { search_url: searchUrl, product_id: productId },
     }),
+
+  // Tasarım (Custom Design)
+  generateCustomDesign: (productId: string, prompt: string) =>
+    api.post<{ status: string, model_url: string, refined_prompt: string }>(`/products/${productId}/generate-design`, { prompt }),
+
+  saveCustomDesign: (productId: string, modelUrl: string, prompt: string) =>
+    api.post(`/products/${productId}/save-design`, null, {
+      params: { model_url: modelUrl, prompt }
+    }),
 };
 
 // ─── Admin API ─────────────────────────────────────────────────────────
@@ -158,6 +167,8 @@ export const adminAPI = {
   getStats: () => api.get<AffiliateStats>('/admin/clicks'),
   listClicks: (skip = 0, limit = 50) =>
     api.get<AffiliateClick[]>('/admin/clicks/list', { params: { skip, limit } }),
+  getProductClicks: (productId: string) =>
+    api.get<{ product_id: string; click_count: number }>(`/admin/clicks/product/${productId}`),
 };
 
 // ─── Affiliate Click ───────────────────────────────────────────────────
