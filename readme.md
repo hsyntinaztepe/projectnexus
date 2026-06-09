@@ -17,6 +17,8 @@ Kullanıcıların mobilya ürünlerini satın almadan önce gerçekçi 3D modell
 - [7. Video](https://youtu.be/qmDXJbhy04Q)
 - [8. Video](https://youtu.be/X_ThyUqOO3Q)
 - [9. Video](https://youtu.be/fo5-x6aCdYI)
+- [10. Video](https://youtu.be/BL6QeEQCZCw)
+
 
 
 ---
