@@ -15,7 +15,7 @@ start "Nexus Backend (FastAPI)" cmd /k "cd backend && call venv\Scripts\activate
 timeout /t 3 /nobreak >nul
 
 echo [2/2] Frontend (React Native/Expo) ayaga kaldiriliyor...
-start "Nexus Frontend (Expo)" cmd /k "cd projectnexus && npm start -- -c"
+start "Nexus Frontend (Expo)" cmd /k "cd projectnexus && set REACT_NATIVE_PACKAGER_HOSTNAME=192.168.0.4 && npm start -- -c"
 
 echo.
 echo ==================================================

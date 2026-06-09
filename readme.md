@@ -16,15 +16,14 @@ Kullanıcıların mobilya ürünlerini satın almadan önce gerçekçi 3D modell
 - [6. Video](https://youtu.be/D-1F6KgSk1U)
 - [7. Video](https://youtu.be/qmDXJbhy04Q)
 - [8. Video](https://youtu.be/X_ThyUqOO3Q)
-- [9. Video (IOS2 Dersi V8 Demo)](./21290360-HuseyinTinaztepe-IOS2%20Dersi-24052026-V8.mp4)
-
+- [9. Video](https://youtu.be/fo5-x6aCdYI)
 
 
 ---
 
 ## Özellikler
 
-- **3D Ürün Görüntüleyici** — Her ürün için AI tarafından üretilmiş `.glb` modeli; parmakla döndürme, butonla yakınlaştırma/uzaklaştırma ve mekan arka planı desteği
+- **3D Ürün Görüntüleyici** — Her ürün için AI tarafından üretilmiş `.glb` modeli; parmakla döndürme ve yakınlaştırma desteği
 - **AI Pipeline** — Ürün görseli → Gemini 2.5 Flash (prompt üretimi) → Tripo3D API (3D model) → otomatik veritabanı güncellemesi
 - **Çok Platform Veri Kazıma** — Amazon, IKEA, Trendyol ve Modalife'den otomatik ürün çekimi
 - **Affiliate Takip Sistemi** — "Satın Al" tıklamaları platform bazında kaydedilir
